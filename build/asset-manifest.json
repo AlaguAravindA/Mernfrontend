@@ -1,0 +1,29 @@
+{
+  "files": {
+    "main.css": "/static/css/main.32929863.css",
+    "main.js": "/static/js/main.6fa83552.js",
+    "static/js/787.a619ee16.chunk.js": "/static/js/787.a619ee16.chunk.js",
+    "static/media/Romanticmovies.jpg": "/static/media/Romanticmovies.bcc80b663c8b7e4af062.jpg",
+    "static/media/Scary-Movies-800x400w.jpg": "/static/media/Scary-Movies-800x400w.3d4f87b5d4b29a24bca1.jpg",
+    "static/media/user.svg": "/static/media/user.fd4c46e99d99b88816df060d6b4f0fcb.svg",
+    "static/media/Action_image.jpg": "/static/media/Action_image.ddec9503e72d6eb39638.jpg",
+    "static/media/c.png": "/static/media/c.40a7f5709b1b12ef870f.png",
+    "static/media/undraw_my_password_re_ydq7.svg": "/static/media/undraw_my_password_re_ydq7.7b775f53bfc1248b4f985ed5cb6d2b47.svg",
+    "static/media/undraw_warning_re_eoyh.svg": "/static/media/undraw_warning_re_eoyh.cfbdbf5c9bce3f96e2614fcdfdbd4db3.svg",
+    "static/media/undraw_not_found_re_bh2e.svg": "/static/media/undraw_not_found_re_bh2e.7a716554ee040814d7ce5e4eee6eb1d9.svg",
+    "static/media/logo.svg": "/static/media/logo.6ce24c58023cc2f8fd88fe9d219db6c6.svg",
+    "static/media/gsignin.svg": "/static/media/gsignin.2c99cf0aa7c0f634bb0ed7e7ba600cdd.svg",
+    "static/media/pref.svg": "/static/media/pref.42a395c6049cf77b57ec5e9da297d318.svg",
+    "index.html": "/index.html",
+    "static/media/logout.svg": "/static/media/logout.d698bdd44c3011bfb5d0fea66b151b90.svg",
+    "static/media/8666649_eye_off_icon.svg": "/static/media/8666649_eye_off_icon.e26a88e5162aba929411e14dac61da1a.svg",
+    "static/media/8666618_eye_icon.svg": "/static/media/8666618_eye_icon.f6f389d29edffc146e1f5e24483d9c08.svg",
+    "main.32929863.css.map": "/static/css/main.32929863.css.map",
+    "main.6fa83552.js.map": "/static/js/main.6fa83552.js.map",
+    "787.a619ee16.chunk.js.map": "/static/js/787.a619ee16.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.32929863.css",
+    "static/js/main.6fa83552.js"
+  ]
+}
