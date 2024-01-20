@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import { auth } from '../firebaseauth';
 import noplay from './images/posters/undraw_my_password_re_ydq7.svg';
 
-gsap.registerPlugin(CSSPlugin);
+gsap.registerPlugin();
 
 function Playlist() {
   const [playlistName, setPlaylistName] = useState('');
