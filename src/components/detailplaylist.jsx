@@ -209,17 +209,27 @@ const DetailPlaylist = () => {
               <h2 className="text-4xl mt-4 w-fit font-bold mb-6">{playlistDetails.PlaylistName}</h2>
 
               <div className="mb-8 bg-white backdrop-filter backdrop-blur-sm bg-opacity-10 p-6 rounded-md text-center">
-                <h3 className="text-xl font-semibold mb-2 text-white">Here is the Playlist</h3>
-                <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  <BackToTopButton />
-                  {playlistDetails.movies &&
-                    playlistDetails.movies.map((movie, index) => (
-                      <li key={index} className="mb-4">
-                        <MovieCard id={movie.imdb_id} />
-                      </li>
-                    ))}
-                </ul>
-              </div>
+            
+            {playlistDetails.movies && playlistDetails.movies.length > 0 ? (
+              <>
+            <h3 className="text-xl font-semibold mb-2 text-white">Here is the Playlist</h3>
+              <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <BackToTopButton />
+                {playlistDetails.movies.map((movie, index) => (
+                  <li key={index} className="mb-4">
+                    <MovieCard id={movie.imdb_id} />
+                  </li>
+                ))}
+              </ul>
+                </>
+            ) : (
+              <div className="flex flex-col items-center justify-center">
+              <p className="text-white text-2xl mb-4">No movies in this playlist yet.</p>
+              
+            
+            </div>
+            )}
+          </div>
 
               {isUserPlaylist && (
                 <div className="mb-8 bg-white backdrop-filter backdrop-blur-sm bg-opacity-10 p-6 rounded-md">
