@@ -56,7 +56,7 @@ function Movies() {
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, user]);
+  }, [currentPage, user, errors]);
 
   useEffect(() => {
     // Fetch movies when the component mounts and when currentPage or user change
