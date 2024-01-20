@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
+
 import { useSpring, animated } from 'react-spring';
-import Character from './character';
+
 import warning from './images/posters/undraw_warning_re_eoyh.svg'
 
 export default function WatchlistNotFound() {

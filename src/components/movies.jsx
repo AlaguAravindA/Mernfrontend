@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import MovieCard from './MovieCard.js';
 import Pagination from './Pagination.js';
 import BackToTopButton from './backtotop.jsx';
@@ -16,13 +16,13 @@ function Movies() {
   const [user, setUser] = useState('');
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [errors, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const itemsPerPage = 100;
-  const [userPreferences, setUserPreferences] = useState([]);
+  // const [userPreferences, setUserPreferences] = useState([]);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setIsLoading(true);
 
     try {
@@ -35,7 +35,6 @@ function Movies() {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
         const data = await response.json();
-        // setUserPreferences(data.preferences || []); // Ensure preferences is an array
         const genreString = data.preferences.join('|');
         apiUrlWithPreferences += `&genres=${genreString}`;
       }
@@ -54,12 +53,12 @@ function Movies() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [currentPage, user,errors]);
 
   useEffect(() => {
     // Fetch movies when the component mounts and when currentPage or user change
     fetchData();
-  }, [currentPage, user]);
+  }, [fetchData]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -74,9 +73,6 @@ function Movies() {
       setCurrentPage(newPage);
     }
   };
-
-
-
   
 
   return (

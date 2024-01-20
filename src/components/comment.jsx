@@ -36,7 +36,7 @@ const CommentsComponent = ({ imdb_id }) => {
   let usernameemail = extractUsername(userNameemail);
   if (userName === "" && userNameemail != null) {
     // usernameemail = usernameemail;
-  } else if (userName != null && userNameemail === "") {
+  } else if (userName !== null && userNameemail === "") {
     usernameemail = userName;
   } else if (userName !== "" || userNameemail !== "") {
     usernameemail = userName;
@@ -44,11 +44,9 @@ const CommentsComponent = ({ imdb_id }) => {
     console.log("some problem");
   }
 
-  useEffect(() => {
-    fetchComments();
-  }, [imdb_id]);
+  
 
-  const fetchComments = async () => {
+  const fetchComments = useCallback(async () => {
     try {
       const response = await fetch(
         `https://cineback-0zol.onrender.com/addcomments/getcomm/${imdb_id}`
@@ -66,8 +64,11 @@ const CommentsComponent = ({ imdb_id }) => {
     } catch (error) {
       console.error("Error fetching comments:", error.message);
     }
-  };
+  }, [imdb_id]);
 
+  useEffect(() => {
+    fetchComments();
+  }, [fetchComments]);
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
 
@@ -132,37 +133,8 @@ const CommentsComponent = ({ imdb_id }) => {
       console.error("Error adding reply:", error.message);
     }
   };
+ 
 
-  const handleLike = async (commentId) => {
-    try {
-      // Check if the user has already liked the comment
-      if (likedComments.includes(commentId)) {
-        console.log("You have already liked this comment.");
-        return;
-      }
-
-      const response = await fetch(
-        `/addcomments/addlike/${commentId}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to add like");
-      }
-
-      // Update liked comments
-      setLikedComments([...likedComments, commentId]);
-
-      fetchComments();
-    } catch (error) {
-      console.error("Error adding like:", error.message);
-    }
-  };
 
   const BoldAtWords = ({ text }) => {
     const boldWords = (text) => {

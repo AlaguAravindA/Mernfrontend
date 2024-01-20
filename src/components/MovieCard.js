@@ -26,7 +26,7 @@ const MovieCard = ({ id, title, genres }) => {
         <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7">
           <img
             src={imageSrc} // Make sure to pass the correct image source
-            className="h-full w-full object-cover object-center group-hover:opacity-75"
+            className="h-full w-full object-cover object-center group-hover:opacity-75" alt=''
           />
         </div>
         <h3 className="mt-4 text-lg text-slate-300">{title}</h3>
