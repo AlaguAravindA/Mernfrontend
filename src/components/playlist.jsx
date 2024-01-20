@@ -182,7 +182,7 @@ function Playlist() {
               </div>
             )}
 
-            <div className="modal fixed top-0 left-0 w-full h-full bg-gray-800 bg-opacity-75">
+<div className={`modal fixed top-0 left-0 w-full h-full bg-gray-800 bg-opacity-75 ${isModalOpen ? 'block' : 'hidden'}`}>
               <div className="modal-content bg-gray-700 p-8 rounded-lg absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                 <h2 className="text-2xl font-bold mb-4">Create Playlist</h2>
                 <label className="block mb-4">
