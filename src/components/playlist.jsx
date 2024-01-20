@@ -1,12 +1,14 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { gsap } from 'gsap';
 import { onAuthStateChanged } from 'firebase/auth';
-import Loader from './Loader.tsx'; // Import a Loader component
+import { CSSPlugin } from 'gsap';
 import { Link } from 'react-router-dom';
+import Loader from './Loader.tsx'; // Import a Loader component
+
 import { auth } from '../firebaseauth';
 import noplay from './images/posters/undraw_my_password_re_ydq7.svg';
 
-gsap.registerPlugin();
+gsap.registerPlugin(CSSPlugin);
 
 function Playlist() {
   const [playlistName, setPlaylistName] = useState('');
@@ -16,15 +18,14 @@ function Playlist() {
   const [userName, setUserName] = useState('');
   const [userNameemail, setUserNameemail] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-  const [isCreatingPlaylist, setIsCreatingPlaylist] = useState(false);
+  const [isModalOpen, setModalOpen] = useState(false);
 
-  const extractUsername = (email) => {
+  function extractUsername(email) {
     const match = email.match(/^([a-zA-Z0-9._%+-]+)@/);
     return match && match[1] ? match[1] : '';
-  };
+  }
 
   let usernameemail = extractUsername(userNameemail);
-
   if (userName === '' && userNameemail != null) {
     // usernameemail = usernameemail;
   } else if (userName !== null && userNameemail === '') {
@@ -34,34 +35,6 @@ function Playlist() {
   } else {
     console.log('some problem');
   }
-
-  const fetchPlaylistData = useCallback(async () => {
-    try {
-      const response = await fetch(`https://cineback-0zol.onrender.com/playlist/all/${userId}`);
-      if (response.ok) {
-        const data = await response.json();
-        setAllPlaylist(data);
-      } else {
-        console.error('Error fetching playlist data');
-      }
-    } catch (error) {
-      console.error('An error occurred while fetching playlist data:', error);
-    }
-  }, [userId]);
-
-  const fetchUserPlaylists = useCallback(async () => {
-    try {
-      const response = await fetch(`https://cineback-0zol.onrender.com/playlist/user/${userId}`);
-      if (response.ok) {
-        const data = await response.json();
-        setPlaylistItems(data.playlists || []);
-      } else {
-        console.error('Error fetching user playlists');
-      }
-    } catch (error) {
-      console.error('An error occurred while fetching user playlists:', error);
-    }
-  }, [userId]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -76,17 +49,33 @@ function Playlist() {
   useEffect(() => {
     const fetchInitialData = async () => {
       setIsLoading(true);
+
       await fetchPlaylistData();
       await fetchUserPlaylists();
+
       setIsLoading(false);
     };
 
     fetchInitialData();
-  }, [userId, fetchPlaylistData, fetchUserPlaylists]);
+  }, [userId]);
+
+  useEffect(() => {
+    const fetchUserSpecificPlaylists = async () => {
+      setIsLoading(true);
+
+      await fetchUserPlaylists();
+
+      setIsLoading(false);
+    };
+
+    fetchUserSpecificPlaylists();
+  }, [userId]);
 
   const openModal = () => {
+    setModalOpen(true);
     gsap.fromTo('.modal', { y: '-100%' }, { y: '0%', duration: 0.5, ease: 'power3.inOut' });
   };
+
 
   const closeModal = () => {
     gsap.to('.modal', {
@@ -103,36 +92,50 @@ function Playlist() {
 
   const handleCreatePlaylist = async () => {
     if (playlistName.trim() !== '') {
-      setIsCreatingPlaylist(true);
+      const response = await fetch('https://cineback-0zol.onrender.com/playlist/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userID: userId,
+          username: usernameemail,
+          PlaylistName: playlistName,
+          movies: [],
+        }),
+      });
 
-      try {
-        const response = await fetch('https://cineback-0zol.onrender.com/playlist/create', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            userID: userId,
-            username: usernameemail,
-            PlaylistName: playlistName,
-            movies: [],
-          }),
-        });
-
-        if (response.ok) {
-          await fetchUserPlaylists();
-          await fetchPlaylistData();
-        } else {
-          console.error('Error creating playlist');
-        }
-      } catch (error) {
-        console.error('An error occurred while creating playlist:', error);
-      } finally {
-        setIsCreatingPlaylist(false);
+      if (response.ok) {
+        await fetchUserPlaylists();
+        await fetchPlaylistData();
       }
 
       setPlaylistName('');
       closeModal();
+    }
+  };
+
+  const fetchPlaylistData = async () => {
+    const response = await fetch(`https://cineback-0zol.onrender.com/playlist/all/${userId}`);
+    if (response.ok) {
+      const data = await response.json();
+      setAllPlaylist(data);
+    } else {
+      console.error('Error fetching playlist data');
+    }
+  };
+
+  const fetchUserPlaylists = async () => {
+    try {
+      const response = await fetch(`https://cineback-0zol.onrender.com/playlist/user/${userId}`);
+      if (response.ok) {
+        const data = await response.json();
+        setPlaylistItems(data.playlists || []);
+      } else {
+        console.error('Error fetching user playlists');
+      }
+    } catch (error) {
+      console.error('An error occurred while fetching user playlists:', error);
     }
   };
 
@@ -195,9 +198,8 @@ function Playlist() {
                   <button
                     onClick={handleCreatePlaylist}
                     className="bg-blue-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
-                    disabled={isCreatingPlaylist} // Disable the button while creating
                   >
-                    {isCreatingPlaylist ? 'Creating...' : 'Create'}
+                    Create
                   </button>
                   <button
                     onClick={closeModal}
