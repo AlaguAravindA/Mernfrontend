@@ -18,16 +18,6 @@ export default function Detailed() {
   const [notFound, setNotFound] = useState(false);
   const [imageSrc, setImageSrc] = useState("");
 
-  
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUserId(user?.uid || "");
-    });
-
-    return () => unsubscribe();
-  }, []);
-
   const checkWatchlist = useCallback(async () => {
     try {
       const response = await fetch(
@@ -46,10 +36,6 @@ export default function Detailed() {
       console.error("Error checking watchlist:", error.message);
     }
   }, [userId, id]);
-
-  useEffect(() => {
-    checkWatchlist();
-  }, [checkWatchlist]);
 
   const addToWatchlist = useCallback(async () => {
     try {
@@ -95,14 +81,26 @@ export default function Detailed() {
   }, [userId, id]);
 
   useEffect(() => {
-    const setImg = useCallback(async () => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUserId(user?.uid || "");
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    checkWatchlist();
+  }, [checkWatchlist]);
+
+  useEffect(() => {
+    const setImg = async () => {
       try {
         const result = await moviesimages(id, "6dbdf27e3fb82e5b69b71a171310e6a3");
         setImageSrc(result);
       } catch (error) {
         console.error("Error fetching image:", error.message);
       }
-    }, [id]);
+    };
 
     setImg();
   }, [id]);
