@@ -75,7 +75,8 @@ export default function Particle() {
               enable: false, // Disable onClick event
             },
             onHover: {
-              enable: false, // Disable onHover event
+              enable: true,
+              mode :'grab' // Disable onHover event
             },
             resize: false, // Disable resize event
           },
