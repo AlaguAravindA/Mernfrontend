@@ -11,7 +11,7 @@ const CommentsComponent = ({ imdb_id }) => {
   const [userName, setUserName] = useState("");
   const [userNameemail, setUserNameemail] = useState("");
   const [replyToCommentId, setReplyToCommentId] = useState(null);
-  const [likedComments, setLikedComments] = useState([]);
+
   const [isAddingComment, setIsAddingComment] = useState(false); // Added state for tracking comment addition
 
   useEffect(() => {

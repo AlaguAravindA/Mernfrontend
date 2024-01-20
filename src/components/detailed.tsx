@@ -1,11 +1,9 @@
-import React, { useState, useEffect,useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { StarIcon } from "@heroicons/react/20/solid";
 import { useParams } from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
-
 import { auth } from "../firebaseauth";
 import moviesimages from "../backend/moviesimg";
-
 import CommentSection from "./comment";
 import NotFound404 from "./404notfoun.jsx";
 import Loader from "./Loader.tsx";
@@ -15,9 +13,12 @@ export default function Detailed() {
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [userId, setUserId] = useState("");
   const [isInWatchlist, setIsInWatchlist] = useState(false);
-  const [isAddingToWatchlist, setIsAddingToWatchlist] = useState(false); // New state for loader
+  const [isAddingToWatchlist, setIsAddingToWatchlist] = useState(false);
   const [movieLoaded, setMovieLoaded] = useState(false);
   const [notFound, setNotFound] = useState(false);
+  const [imageSrc, setImageSrc] = useState("");
+
+  
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -27,37 +28,37 @@ export default function Detailed() {
     return () => unsubscribe();
   }, []);
 
-  useEffect(() => {
-    const checkWatchlist = async () => {
-      try {
-        const response = await fetch(
-          `https://cineback-0zol.onrender.com/watchlist/fetchWatchlist/${userId}/${id}`
+  const checkWatchlist = useCallback(async () => {
+    try {
+      const response = await fetch(
+        `https://cineback-0zol.onrender.com/watchlist/fetchWatchlist/${userId}/${id}`
+      );
+
+      if (!response.ok) {
+        throw new Error(
+          `Failed to fetch watchlist information. Status: ${response.status}`
         );
-
-        if (!response.ok) {
-          throw new Error(
-            `Failed to fetch watchlist information. Status: ${response.status}`
-          );
-        }
-
-        const data = await response.json();
-        setIsInWatchlist(data.isInWatchlist);
-      } catch (error) {
-        console.error("Error checking watchlist:", error.message);
       }
-    };
 
-    checkWatchlist();
+      const data = await response.json();
+      setIsInWatchlist(data.isInWatchlist);
+    } catch (error) {
+      console.error("Error checking watchlist:", error.message);
+    }
   }, [userId, id]);
 
-  const addToWatchlist = async () => {
+  useEffect(() => {
+    checkWatchlist();
+  }, [checkWatchlist]);
+
+  const addToWatchlist = useCallback(async () => {
     try {
       if (!userId) {
         console.warn("User is not logged in. Cannot add to watchlist.");
         return;
       }
 
-      setIsAddingToWatchlist(true); // Start loader
+      setIsAddingToWatchlist(true);
 
       const response = await fetch(
         `https://cineback-0zol.onrender.com/watchlist/addtowatchlist/${userId}`,
@@ -89,24 +90,19 @@ export default function Detailed() {
     } catch (error) {
       console.error("Error checking watchlist:", error.message);
     } finally {
-      setIsAddingToWatchlist(false); // Stop loader
+      setIsAddingToWatchlist(false);
     }
-  };
-
-  const [imageSrc, setImageSrc] = useState("");
+  }, [userId, id]);
 
   useEffect(() => {
-    const setImg = async () => {
+    const setImg = useCallback(async () => {
       try {
-        const result = await moviesimages(
-          id,
-          "6dbdf27e3fb82e5b69b71a171310e6a3"
-        );
+        const result = await moviesimages(id, "6dbdf27e3fb82e5b69b71a171310e6a3");
         setImageSrc(result);
       } catch (error) {
         console.error("Error fetching image:", error.message);
       }
-    };
+    }, [id]);
 
     setImg();
   }, [id]);
@@ -127,22 +123,19 @@ export default function Detailed() {
       .then((data) => {
         setSelectedMovie(data.items[0]);
         setMovieLoaded(true);
-        
       })
       .catch((error) => {
-        
         console.error("Error fetching movie details:", error);
       });
   }, [id]);
 
- 
   if (!movieLoaded) {
     return <Loader />;
   }
-  if(notFound){
-   return  <NotFound404></NotFound404>
-  }
 
+  if (notFound) {
+    return <NotFound404></NotFound404>;
+  }
 
   return (
     <div className="container mt-4 mx-auto pt-10 bg-slate-50 bg-opacity-10 rounded-3xl ">
@@ -166,9 +159,7 @@ export default function Detailed() {
             <p className="text-gray-400 mr-2">
               Rating: <br />
             </p>
-            <SingleStarRating
-              rating={parseFloat(selectedMovie.vote_average)}
-            />
+            <SingleStarRating rating={parseFloat(selectedMovie.vote_average)} />
           </div>
           <div className="flex items-center mb-6">
             <p className="text-gray-400 mr-2">
@@ -180,9 +171,7 @@ export default function Detailed() {
             <p className="text-gray-400 mr-2">
               Release Year: <br />
             </p>
-            <p className="text-gray-400 mr-2">
-              {selectedMovie.release_year}{" "}
-            </p>
+            <p className="text-gray-400 mr-2">{selectedMovie.release_year} </p>
           </div>
           <div className="flex items-center mb-6">
             <p className="text-gray-400 mr-2">
@@ -218,9 +207,7 @@ export default function Detailed() {
             </p>
           </div>
 
-          <h2 className="text-xl font-bold text-gray-400 mb-4 mt-3">
-            Description
-          </h2>
+          <h2 className="text-xl font-bold text-gray-400 mb-4 mt-3">Description</h2>
           <p className="text-slate-100 mb-8">{selectedMovie.overview}</p>
           <button
             type="button"
@@ -235,7 +222,7 @@ export default function Detailed() {
             disabled={!userId || isInWatchlist || isAddingToWatchlist}
           >
             {isAddingToWatchlist ? (
-              <Loader /> // Display loader while adding to watchlist
+              <Loader /> 
             ) : (
               userId
                 ? isInWatchlist
