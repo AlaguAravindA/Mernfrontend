@@ -50,6 +50,9 @@ function Movies() {
       setTotalPages(data.totalPages);
     } catch (error) {
       setError(error);
+      if(errors){
+        console.log("errr");
+      }
     } finally {
       setIsLoading(false);
     }
