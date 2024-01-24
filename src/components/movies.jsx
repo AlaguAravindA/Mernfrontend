@@ -20,6 +20,9 @@ function Movies() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const itemsPerPage = 100;
+  const [isLoadingPreferences, setIsLoadingPreferences] = useState(true);
+
+
   // const [userPreferences, setUserPreferences] = useState([]);
 
   const fetchData = useCallback(async () => {
@@ -54,6 +57,7 @@ function Movies() {
         console.log("errr");
       }
     } finally {
+      setIsLoadingPreferences(false);
       setIsLoading(false);
     }
   }, [currentPage, user, errors]);
@@ -83,7 +87,8 @@ function Movies() {
       <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
         <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
           {isLoading && <Loader></Loader>}
-          {!isLoading &&
+          {isLoadingPreferences && <Loader />} 
+          {!isLoading && !isLoadingPreferences  &&
             products.map((product) => (
               <MovieCard
                 key={product.id}

@@ -30,7 +30,7 @@ const Searchresults = () => {
   useEffect(() => {
     const fetchRecommendations = async () => {
       try {
-        const response = await fetch(`https://cineback-0zol.onrender.comhttp://127.0.0.1:5000/recommendations?movie_title=${searchquery}`);
+        const response = await fetch(`http://127.0.0.1:5000/recommendations?movie_title=${searchquery}`);
         const data = await response.json();
         setRecco(data);
 
