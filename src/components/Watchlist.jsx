@@ -64,18 +64,20 @@ export default function Watchlist() {
     }
   };
 
+ const reversedWatchlist = watchlist.slice().reverse();
+
   return (
     <div className="bg-transparent">
       <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
         <h2 className="sr-only text-slate-50">Watchlist</h2>
-
+  
         {isLoading ? (
           <Loader /> // Display loader while fetching watchlist
-        ) : watchlist.length === 0 ? (
+        ) : reversedWatchlist.length === 0 ? (
           <WatchlistNotFound />
         ) : (
           <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
-            {watchlist.map((movieId, index) => (
+            {reversedWatchlist.map((movieId, index) => (
               <div key={index} className="group relative">
                 <MovieCard id={movieId} />
                 <button
@@ -91,4 +93,5 @@ export default function Watchlist() {
       </div>
     </div>
   );
-}
+            }
+
