@@ -81,30 +81,51 @@ function Movies() {
     }
   };
   
-
-  return (
+ return (
     <div className="bg-transparent">
       <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
-        <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
-          {isLoading && <Loader></Loader>}
-          {isLoadingPreferences && <Loader />} 
-          {!isLoading && !isLoadingPreferences  &&
-            products.map((product) => (
-              <MovieCard
-                key={product.id}
-                id={product.imdb_id}
-                title={product.original_title}
-                genres={product.genres}
-              />
-            ))}
+        {errors ? (
+          <div className="flex  justify-center ">
+          <div className="bg-gray-900 text-white rounded-lg shadow-lg p-8">
+            <div className="text-4xl mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-red-500 inline-block mr-2" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 3a1 1 0 00-.74.336c-4.418 4.395-4.562 7.39-3.702 9.562a7.29 7.29 0 001.445 1.667c.483.448 1.09.894 1.772 1.35a1 1 0 001.486 0c.682-.456 1.29-.902 1.772-1.35.595-.553 1.035-1.135 1.344-1.747a7.29 7.29 0 001.445-1.667c.86-2.172.716-5.167-3.702-9.562A1 1 0 0010 3zm0 2a1 1 0 01.587.192c3.4 2.687 3.517 4.603 2.829 6.273-.617 1.872-2.18 3.33-3.85 4.516a5.282 5.282 0 01-1.133.675l-.177.072-.177-.072a5.282 5.282 0 01-1.133-.675c-1.67-1.186-3.233-2.644-3.85-4.516-.688-1.67-.571-3.586 2.829-6.273A1 1 0 0110 5zm0 7a1 1 0 100 2 1 1 0 000-2z" clipRule="evenodd" />
+              </svg>
+              Oops! Something Went Wrong 💔
+            </div>
+            <p className="text-lg mb-4 text-center">Please try again later.</p>
+            <p className='text-center'>Check Your Internet Connection 😎</p>
+          </div>
         </div>
+        
+        ) : (
+          <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
+            {isLoading && <Loader></Loader>}
+            {isLoadingPreferences && <Loader />}
+            {!isLoading && !isLoadingPreferences && products.length === 0 && (
+              <div className="text-center text-gray-600">
+                <p>No movies found.</p>
+              </div>
+            )}
+            {!isLoading && !isLoadingPreferences &&
+              products.map((product) => (
+                <MovieCard
+                  key={product.id}
+                  id={product.imdb_id}
+                  title={product.original_title}
+                  genres={product.genres}
+                />
+              ))}
+          </div>
+        )}
       </div>
       <BackToTopButton />
-      <div className="bottom-16 sm:flex sm:flex-1 sm:items-center sm:justify-center">
+      {!errors  ?   (<div className="bottom-16 sm:flex sm:flex-1 sm:items-center sm:justify-center">
         <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
- 
+      </div>):
+      <></>
+      }
       </div>
-    </div>
   );
 }
 
