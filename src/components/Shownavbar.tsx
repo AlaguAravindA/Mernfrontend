@@ -5,7 +5,7 @@ export default function Shownavbar({children}) {
     const navigate = useLocation();
     const [shownavbar, setshownavbar]= useState(false);
   
-    useEffect(()=>{console.log(navigate)
+    useEffect(()=>{
                   if(navigate.pathname==='/login' || navigate.pathname==='/register'){
                     setshownavbar(false)
                   }
