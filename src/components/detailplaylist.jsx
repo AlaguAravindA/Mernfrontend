@@ -20,7 +20,7 @@ const DetailPlaylist = () => {
 
   const fetchPlaylistData = useCallback(async () => {
     try {
-      const response = await fetch(`https://cineback-0zol.onrender.com/playlist/${playlistID}`);
+      const response = await fetch(`https://cineback-0zol.onrender.com/playlist/detail/${playlistID}`);
 
       if (response.ok) {
         const data = await response.json();

@@ -20,6 +20,10 @@ export default function Detailed() {
 
   const checkWatchlist = useCallback(async () => {
     try {
+      if (!userId) {
+        
+        return;
+      }
       const response = await fetch(
         `https://cineback-0zol.onrender.com/watchlist/fetchWatchlist/${userId}/${id}`
       );
