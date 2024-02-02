@@ -81,7 +81,7 @@ const Searchresults = () => {
       console.error(error);
     }
   };
-  if(arr.length !=0){
+  if(arr.length !==0){
 
     fetchMovies(arr);
   }
