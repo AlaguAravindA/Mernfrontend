@@ -9,6 +9,8 @@ const Searchresults = () => {
   const [datareq, setDatareq] = useState(null);
   const [isLoader, setIsLoader] = useState(false);
   const [recco, setRecco] = useState([]);
+  const [movieId, setMovieId] = useState(null);
+  const [arr , setArr] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -28,22 +30,47 @@ const Searchresults = () => {
   }, [searchquery]);
 
   useEffect(() => {
+    const fetchMovieIdFromDatabase = async () => {
+      try {
+        // Assuming you have an endpoint to fetch the movie ID based on the search query
+        const movieIdResponse = await fetch(`https://cineback-0zol.onrender.com/searchmovies/movieID/${searchquery}`);
+        const movieIdData = await movieIdResponse.json();
+       
+        setMovieId(movieIdData.items[0].id); // Assuming the response contains the movie ID
+      } catch (error) {
+        console.error('Error fetching movie ID:', error);
+      }
+    };
+
+    if (searchquery) {
+      fetchMovieIdFromDatabase();
+    }
+  }, [searchquery]);
+
+  useEffect(() => {
     const fetchRecommendations = async () => {
       try {
-        const response = await fetch(`http://127.0.0.1:5000/recommendations?movie_title=${searchquery}`);
-        const data = await response.json();
-        setRecco(data);
+        if (!movieId) return; // Wait for movieId to be fetched first
+        const url = `https://api.themoviedb.org/3/movie/${movieId}/recommendations?language=en-US&page=1`;
+        const options = {
+          method: 'GET',
+          headers: {
+            accept: 'application/json',
+            Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI2ZGJkZjI3ZTNmYjgyZTViNjliNzFhMTcxMzEwZTZhMyIsInN1YiI6IjY1ODkxNzA0MDcyMTY2NjdlNGE1YmFlYSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.cgxsdMCxOIZQVpHLyfNR8uPNGLZtiAy0ZdwNJnJ7aFI'
+          }
+        };
 
-        if (data && data.recommendations && data.recommendations.length > 0) {
-          fetchMovies(data.recommendations);
-        }
-      } catch (e) {
-        console.error('Error fetching recommendations:', e);
+        const response = await fetch(url, options);
+        const json = await response.json();
+        const titles = json.results.slice(0, 4).map(movie => movie.original_title);
+        setArr(titles);
+      } catch (error) {
+        console.error('Error fetching recommendations:', error);
       }
     };
 
     fetchRecommendations();
-  }, [searchquery]);
+  }, [movieId]);
 
   const fetchMovies = async (recommendations) => {
     try {
@@ -54,6 +81,10 @@ const Searchresults = () => {
       console.error(error);
     }
   };
+  if(arr.length !=0){
+
+    fetchMovies(arr);
+  }
 
   return (
     <div className='bg-transparent p-8'>
