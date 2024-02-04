@@ -15,7 +15,7 @@ const EditPlaylist = () => {
   useEffect(() => {
     const fetchPlaylistDetails = async () => {
       try {
-        const response = await fetch(`https://cineback-0zol.onrender.com/playlist/${playlistID}`);
+        const response = await fetch(`https://cineback-0zol.onrender.com/playlist/detail/${playlistID}`);
         const playlistDetails = await response.json();
         setPlaylistData(playlistDetails);
       } catch (error) {
