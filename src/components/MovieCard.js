@@ -27,6 +27,7 @@ const MovieCard = ({ id, title, genres }) => {
           <img
             src={imageSrc} // Make sure to pass the correct image source
             className="h-full w-full object-cover object-center group-hover:opacity-75" alt=''
+            loading='lazy'
           />
         </div>
         <h3 className="mt-4 text-lg text-slate-300">{title}</h3>
