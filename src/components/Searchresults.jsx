@@ -89,6 +89,7 @@ const Searchresults = () => {
   return (
     <div className='bg-transparent p-8'>
       <div className='max-w-screen-xl mx-auto'>
+         {isLoader && <Loader />} 
         <h2 className='text-3xl font-bold mb-6 relative overflow-hidden inline-block w-auto'>
           <span className='relative  text-white text-opacity-90 p-4 rounded-md shadow-md'>
             Results for {searchquery}
