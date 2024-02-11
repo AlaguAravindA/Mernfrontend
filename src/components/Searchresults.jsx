@@ -96,20 +96,20 @@ const Searchresults = () => {
         </h2>
 
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-          {datareq === null && (
-            <div className="flex flex-col h-screen">
-              <div  className="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-md mb-4">
-                <div className="flex items-center">
-                  <div className="ml-2">
-                    <p className="text-sm leading-5 font-medium w-auto">
-                      No results found  <span className="text-gray-600">Check what you have typed.</span>
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <img className='mx-auto max-w-full sm:max-w-screen-sm md:max-w-screen-md lg:max-w-screen-lg' src={notfound} alt="" />
-            </div>
-          )}
+         {datareq === null && !isLoader && (
+  <div className="flex flex-col h-screen">
+    <div className="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-md mb-4">
+      <div className="flex items-center">
+        <div className="ml-2">
+          <p className="text-sm leading-5 font-medium w-auto">
+            No results found  <span className="text-gray-600">Check what you have typed.</span>
+          </p>
+        </div>
+      </div>
+    </div>
+    <img className='mx-auto max-w-full sm:max-w-screen-sm md:max-w-screen-md lg:max-w-screen-lg' src={notfound} alt="" />
+  </div>
+)}
 
           {datareq && (
             <div key={datareq.imdb_id} className='bg-gray-800 p-4 rounded-lg transition-transform transform hover:scale-105'>
