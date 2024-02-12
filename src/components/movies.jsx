@@ -51,7 +51,7 @@ function Movies() {
       const data = await response.json();
       setProducts(data.items);
       setTotalPages(data.totalPages);
-      // await executeDeployHook();
+      await executeDeployHook();
     } catch (error) {
       setError(error);
       if(errors){
@@ -63,19 +63,19 @@ function Movies() {
     }
   }, [currentPage, user, errors]);
   
-  // const executeDeployHook = async () => {
-  //   try {
-  //     // Make a request to your deploy hook URL
-  //     const response = await fetch('https://api.render.com/deploy/srv-cml2vei1hbls73c0ooj0?key=SdAkzCxoIFM');
-  //     if (!response.ok) {
-  //       throw new Error(`HTTP error! Status: ${response.status}`);
-  //     }
-  //     const data = await response.json();
-  //     console.log(data); // Log response from deploy hook
-  //   } catch (error) {
-  //     console.error('Error executing deploy hook:', error);
-  //   }
-  // };
+  const executeDeployHook = async () => {
+    try {
+      // Make a request to your deploy hook URL
+      const response = await fetch('https://api.render.com/deploy/srv-cml2vei1hbls73c0ooj0?key=SdAkzCxoIFM');
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      const data = await response.json();
+      console.log(data); // Log response from deploy hook
+    } catch (error) {
+      console.error('Error executing deploy hook:', error);
+    }
+  };
 
   useEffect(() => {
     // Fetch movies when the component mounts and when currentPage or user change
