@@ -22,7 +22,7 @@
   
   .pl__ring,
   .pl__ball {
-	animation: ring 2s ease-out infinite;
+	animation: ring 1s ease-out infinite;
   }
   
   .pl__ball {
