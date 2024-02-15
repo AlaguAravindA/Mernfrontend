@@ -9,6 +9,7 @@ export default function Watchlist() {
   const [userId, setUserId] = useState('');
   const [watchlist, setWatchlist] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+   const [removingId, setRemovingId] = useState(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -42,8 +43,9 @@ export default function Watchlist() {
     }
   }, [userId]);
 
-  const removeFromWatchlist = async (imdbId) => {
+const removeFromWatchlist = async (imdbId) => {
     try {
+      setRemovingId(imdbId); // Set the id of the movie being removed
       const response = await fetch(`https://cineback-0zol.onrender.com/watchlist/${userId}/${imdbId}`, {
         method: 'DELETE',
       });
@@ -61,16 +63,18 @@ export default function Watchlist() {
       }
     } catch (error) {
       console.error('Error removing movie from watchlist:', error);
+    } finally {
+      setRemovingId(null); // Reset removingId after removal process completes
     }
   };
 
- const reversedWatchlist = watchlist.slice().reverse();
+  const reversedWatchlist = watchlist.slice().reverse();
 
   return (
     <div className="bg-transparent">
       <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
         <h2 className="sr-only text-slate-50">Watchlist</h2>
-  
+
         {isLoading ? (
           <Loader /> // Display loader while fetching watchlist
         ) : reversedWatchlist.length === 0 ? (
@@ -80,12 +84,21 @@ export default function Watchlist() {
             {reversedWatchlist.map((movieId, index) => (
               <div key={index} className="group relative">
                 <MovieCard id={movieId} />
-                <button
-                  onClick={() => removeFromWatchlist(movieId)}
-                  className="absolute top-2 right-2 text-white cursor-pointer bg-red-500 px-4 py-2 rounded-full hover:bg-red-600 transition duration-300"
-                >
-                  Remove
-                </button>
+                {removingId === movieId ? ( // Render button conditionally based on removingId
+                  <button
+                    className="absolute top-2 right-2 text-white bg-gray-500 cursor-not-allowed px-4 py-2 rounded-full"
+                    disabled
+                  >
+                    Removing...
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => removeFromWatchlist(movieId)}
+                    className="absolute top-2 right-2 text-white cursor-pointer bg-red-500 px-4 py-2 rounded-full hover:bg-red-600 transition duration-300"
+                  >
+                    Remove
+                  </button>
+                )}
               </div>
             ))}
           </div>
@@ -93,5 +106,4 @@ export default function Watchlist() {
       </div>
     </div>
   );
-            }
-
+}
