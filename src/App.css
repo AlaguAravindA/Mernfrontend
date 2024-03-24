@@ -13,6 +13,29 @@
   }
 }
 
+
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, #6a00ff, #b39ddb); /* Indigo to light purple gradient */
+  border-radius: 5px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to bottom, #9575cd, #b39ddb); /* Darker indigo to light purple gradient */
+}
+
+
 .App-header {
   background-color: #282c34;
   min-height: 100vh;
