@@ -1,0 +1,42 @@
+# netlify.toml
+
+[build]
+  # Set the build command
+  command = "npm run build"  # Adjust this based on your project setup
+
+  # Set the publish directory where the built files are located
+  publish = "build"  # Adjust this based on your project setup
+
+# Optional: Configure the Node.js version
+# [build.environment]
+#   NODE_VERSION = "14"
+
+# Optional: Redirects configuration (if needed)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 404
+
+# Optional: Headers configuration (if needed)
+[[headers]]
+  # Enable HTTP/2
+  # This is an example; adjust based on your requirements
+  for = "/*"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# Optional: Function configuration (if using Netlify Functions)
+# [[functions]]
+#   directory = "netlify/functions"
+#   # other function settings...
+
+# Optional: Environment variables (if needed)
+# [build.environment]
+#   REACT_APP_API_KEY = "your_api_key"
+
+# Other optional configurations can be added based on your project needs
