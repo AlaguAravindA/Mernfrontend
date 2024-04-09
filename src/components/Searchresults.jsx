@@ -9,8 +9,8 @@ const Searchresults = () => {
   const { searchquery } = useParams();  
   const [datareq, setDatareq] = useState([]);
   const [isLoader, setIsLoader] = useState(false);
-  const [recco, setRecco] = useState([]);
-  const [movieId, setMovieId] = useState(null);
+
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -39,46 +39,9 @@ const Searchresults = () => {
     fetchData();
   }, [searchquery]);
 
-  useEffect(() => {
-    const fetchMovieIdFromDatabase = async () => {
-      try {
-        const movieIdResponse = await fetch(`https://cineback-0zol.onrender.com/searchmovies/movieID/${searchquery}`);
-        const movieIdData = await movieIdResponse.json();
-        setMovieId(movieIdData.items[0]?.id); // Use optional chaining to handle cases where movieIdData is empty
-      } catch (error) {
-        console.error('Error fetching movie ID:', error);
-      }
-    };
 
-    if (searchquery) {
-      fetchMovieIdFromDatabase();
-    }
-  }, [searchquery]);
 
-  useEffect(() => {
-    const fetchRecommendations = async () => {
-      try {
-        if (!movieId) return;
-
-        const url = `https://api.themoviedb.org/3/movie/${movieId}/recommendations?language=en-US&page=1`;
-        const options = {
-          method: 'GET',
-          headers: {
-            accept: 'application/json',
-            Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI2ZGJkZjI3ZTNmYjgyZTViNjliNzFhMTcxMzEwZTZhMyIsInN1YiI6IjY1ODkxNzA0MDcyMTY2NjdlNGE1YmFlYSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.cgxsdMCxOIZQVpHLyfNR8uPNGLZtiAy0ZdwNJnJ7aFI'
-          }
-        };
-
-        const response = await fetch(url, options);
-        const json = await response.json();
-        setRecco(json.results.slice(0, 4));
-      } catch (error) {
-        console.error('Error fetching recommendations:', error);
-      }
-    };
-
-    fetchRecommendations();
-  }, [movieId]);
+  
 
   return (
     <div className='bg-gray-900 bg-opacity-80 p-8'>

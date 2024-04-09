@@ -15,7 +15,7 @@ export default function Navbar() {
   const [userNameemail, setUserNameemail] = useState("");
   const [userId, setUserId] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [Pointer , setPointer] = useState(true);
+  // const [Pointer , setPointer] = useState(true);
   const historys = useNavigate();
   const dropdownRef = useRef(null);
 
