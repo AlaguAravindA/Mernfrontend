@@ -33,6 +33,7 @@
     "react-toastify": "^10.0.5",
     "react-virtualized": "^9.22.5",
     "react-window": "^1.8.10",
+    "react-youtube": "^10.1.0",
     "sheryjs": "^1.0.0-beta.0.1.7",
     "superagent": "^8.1.2",
     "tsparticles": "^3.0.2",

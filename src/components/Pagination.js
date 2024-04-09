@@ -1,69 +1,53 @@
-// Pagination.js
 import React from 'react';
+import { ArrowRightIcon,ArrowLeftIcon } from '@heroicons/react/20/solid';
+
 
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
-  const maxVisiblePages = 5; // Adjust this value based on your preference
 
-  const getPageNumbers = () => {
-    if (totalPages <= maxVisiblePages) {
-      return Array.from({ length: totalPages }, (_, index) => index + 1);
-    }
-
-    const halfMaxVisiblePages = Math.floor(maxVisiblePages / 2);
-    const startPage = Math.max(1, currentPage - halfMaxVisiblePages);
-    const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-
-    const pages = [];
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(i);
-    }
-
-    return pages;
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
   };
 
   return (
-    <nav className="inline-flex -space-x-px  shadow-sm" aria-label="Pagination">
-      {/* First page button */}
+    <nav className="flex items-center justify-center space-x-4 my-8">
+      {/* Previous button */}
       <button
-        className={`relative rounded-md inline-flex items-center px-4 py-2 text-sm font-semibold ${
+        className={`relative rounded-full inline-flex items-center justify-center w-10 h-10 text-sm font-semibold ${
           currentPage === 1
-            ? 'bg-indigo-600 text-white'
-            : 'text-slate-200 ring-1 ring-inset ring-gray-900 hover:bg-gray-900 focus:z-20 focus:outline-offset-0'
+            ? 'pointer-events-none bg-gray-300 text-gray-600'
+            : 'text-gray-600 bg-gray-200 hover:bg-gray-300'
         }`}
-        onClick={() => onPageChange(1)}
+        onClick={() => {
+          onPageChange(currentPage - 1);
+          scrollToTop(); // Smooth scroll to top
+        }}
+        disabled={currentPage === 1}
       >
-        First
+         <ArrowLeftIcon className="h-5 w-5" />
       </button>
 
-      {/* Previous button */}
-      {/* Ellipsis indicator if needed */}
-      
-      {getPageNumbers().map((pageNumber) => (
-        <button
-          key={pageNumber}
-          className={`relative inline-flex rounded-md items-center px-4 py-2 text-sm font-semibold ${
-            pageNumber === currentPage
-              ? 'bg-indigo-600 text-white'
-              : 'text-slate-200 ring-1 ring-inset ring-gray-900 hover:bg-gray-900 focus:z-20 focus:outline-offset-0'
-          }`}
-          onClick={() => onPageChange(pageNumber)}
-        >
-          {pageNumber}
-        </button>
-      ))}
+      {/* Current page number */}
+      <span className="flex items-center rounded-full justify-center w-10 h-10 text-sm font-semibold bg-indigo-600 text-white">
+        {currentPage}
+      </span>
 
-      {/* Ellipsis indicator if needed */}
-      
-      {/* Last page button */}
+      {/* Next button */}
       <button
-        className={`relative rounded-md inline-flex items-center px-4 py-2 text-sm font-semibold ${
+        className={`relative rounded-full inline-flex items-center justify-center w-10 h-10 text-sm font-semibold ${
           currentPage === totalPages
-            ? 'bg-indigo-600 text-white'
-            : 'text-slate-200 ring-1 ring-inset ring-gray-900 hover:bg-gray-900 focus:z-20 focus:outline-offset-0'
+            ? 'pointer-events-none bg-gray-300 text-gray-600'
+            : 'text-gray-600 bg-gray-200 hover:bg-gray-300'
         }`}
-        onClick={() => onPageChange(totalPages)}
+        onClick={() => {
+          onPageChange(currentPage + 1);
+          scrollToTop(); // Smooth scroll to top
+        }}
+        disabled={currentPage === totalPages}
       >
-        Last
+        <ArrowRightIcon className="h-5 w-5" />
       </button>
     </nav>
   );

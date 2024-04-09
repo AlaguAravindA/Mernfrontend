@@ -3,22 +3,32 @@ import { useParams } from 'react-router-dom';
 import MovieCard from './MovieCard';
 import Loader from './Loader.tsx';
 import notfound from './images/posters/undraw_not_found_re_bh2e.svg';
+const fetch = require('node-fetch');
 
 const Searchresults = () => {
-  const { searchquery } = useParams();
-  const [datareq, setDatareq] = useState(null);
+  const { searchquery } = useParams();  
+  const [datareq, setDatareq] = useState([]);
   const [isLoader, setIsLoader] = useState(false);
   const [recco, setRecco] = useState([]);
   const [movieId, setMovieId] = useState(null);
-  const [arr , setArr] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
       setIsLoader(true);
       try {
-        const response = await fetch(`https://cineback-0zol.onrender.com/searchmovies/movietitles/${searchquery}`);
+        const url = `https://api.themoviedb.org/3/search/movie?query=${searchquery}&include_adult=false&language=en-US&page=1`;
+        const options = {
+          method: 'GET',
+          headers: {
+            accept: 'application/json',
+            Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI2ZGJkZjI3ZTNmYjgyZTViNjliNzFhMTcxMzEwZTZhMyIsInN1YiI6IjY1ODkxNzA0MDcyMTY2NjdlNGE1YmFlYSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.cgxsdMCxOIZQVpHLyfNR8uPNGLZtiAy0ZdwNJnJ7aFI'
+          }
+        };
+
+        const response = await fetch(url, options);
         const data = await response.json();
-        setDatareq(data.items[0]);
+        console.log(data);
+        setDatareq(data.results);
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
@@ -34,7 +44,7 @@ const Searchresults = () => {
       try {
         const movieIdResponse = await fetch(`https://cineback-0zol.onrender.com/searchmovies/movieID/${searchquery}`);
         const movieIdData = await movieIdResponse.json();
-        setMovieId(movieIdData.items[0].id);
+        setMovieId(movieIdData.items[0]?.id); // Use optional chaining to handle cases where movieIdData is empty
       } catch (error) {
         console.error('Error fetching movie ID:', error);
       }
@@ -49,6 +59,7 @@ const Searchresults = () => {
     const fetchRecommendations = async () => {
       try {
         if (!movieId) return;
+
         const url = `https://api.themoviedb.org/3/movie/${movieId}/recommendations?language=en-US&page=1`;
         const options = {
           method: 'GET',
@@ -60,8 +71,7 @@ const Searchresults = () => {
 
         const response = await fetch(url, options);
         const json = await response.json();
-        const titles = json.results.slice(0, 4).map(movie => movie.original_title);
-        setArr(titles);
+        setRecco(json.results.slice(0, 4));
       } catch (error) {
         console.error('Error fetching recommendations:', error);
       }
@@ -69,20 +79,6 @@ const Searchresults = () => {
 
     fetchRecommendations();
   }, [movieId]);
-
-  const fetchMovies = async (recommendations) => {
-    try {
-      const response = await fetch(`https://cineback-0zol.onrender.com/searchmovies/reccomendations/${recommendations}`);
-      const reccomendation = await response.json();
-      setRecco(reccomendation);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  if(arr.length !== 0){
-    fetchMovies(arr);
-  }
 
   return (
     <div className='bg-gray-900 bg-opacity-80 p-8'>
@@ -95,7 +91,7 @@ const Searchresults = () => {
         </h2>
 
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-          {datareq === null && !isLoader && (
+          {datareq.length === 0 && !isLoader && (
             <div className="flex flex-col h-screen">
               <div className="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-md mb-4">
                 <div className="flex items-center">
@@ -110,29 +106,15 @@ const Searchresults = () => {
             </div>
           )}
 
-          {datareq && (
-            <div key={datareq.imdb_id} className='bg-gray-800 p-4 rounded-lg transition-transform transform hover:scale-105'>
-              {isLoader && <Loader />}
-              <MovieCard id={datareq.imdb_id} title={datareq.original_title} />
+          {datareq.map((movie) => (
+            <div key={movie.id} className='bg-gray-800 p-4 rounded-lg transition-transform transform hover:scale-105'>
+              <MovieCard id={movie.id} title={movie.original_title}></MovieCard>
             </div>
-          )}
+          ))}
         </div>
       </div>
 
-      {datareq !== null && (
-        <div className='bg-gray-900 bg-opacity-80 rounded-lg mt-9 p-8 backdrop-filter backdrop-blur-lg'>
-          <h2 className='text-4xl font-extrabold text-white mb-6'>
-            More Like  "{searchquery}"
-          </h2>
-          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-            {recco?.recco && recco.recco.map((movies) => (
-              <div key={movies.imdb_id} className='bg-gray-800 p-4 rounded-lg transition-transform transform hover:scale-105'>
-                <MovieCard id={movies.imdb_id} title={movies.original_title}></MovieCard>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      
     </div>
   );
 };

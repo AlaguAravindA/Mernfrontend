@@ -15,15 +15,9 @@ export default function Navbar() {
   const [userNameemail, setUserNameemail] = useState("");
   const [userId, setUserId] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [suggestions, setSuggestions] = useState([]);
-  // const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
   const [Pointer , setPointer] = useState(true);
   const historys = useNavigate();
   const dropdownRef = useRef(null);
-  const suggestionRef = useRef<HTMLDivElement>(null);
-
-     // removed handleSuggestionSelect from the dependency array
-
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -65,47 +59,7 @@ export default function Navbar() {
   };
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const query = event.target.value;
-    setSearchQuery(query);
-    if (query.trim() !== "") {
-      fetchSuggestions(query);
-    } else {
-      setSuggestions([]);
-    }
-  };
-
-  const fetchSuggestions = async (query: string) => {
-    try {
-      const response = await fetch(
-        `https://cineback-0zol.onrender.com/searchmovies/movietitle/${query}`
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      const titles = data.similarTitles.map((title: string) => title.original_title);
-
-      if (titles.length > 0) {
-        setSuggestions(titles);
-      } else {
-        setSuggestions(["No RESULTS found"]);
-      }
-    } catch (error) {
-      console.error("Error fetching or processing data:", error);
-      setSuggestions(["No RESULTS found"]);
-    }
-  };
-
-  const handleSuggestionSelect = (suggestion: string) => {
-    if(suggestion === "No RESULTS found"){
-      setPointer(false);
-      return ;
-    }
-    setSearchQuery(suggestion);
-    historys("/search-results/" + suggestion);
-    setSuggestions([]);
+    setSearchQuery(event.target.value);
   };
 
   const handlePrefrence = () => {
@@ -172,27 +126,10 @@ export default function Navbar() {
               value={searchQuery}
               onChange={handleSearchChange}
             />
-            {searchQuery !== "" && suggestions.length > 0 && (
-              <div ref={suggestionRef} className="absolute left-0 mt-1 w-64 bg-white border border-gray-300 rounded-md shadow-lg">
-                {suggestions.map((suggestion, index) => (
-                  <div
-                    key={suggestion}
-                    className={`px-4 py-2 cursor-pointer hover:bg-gray-100`}
-                    onClick={() => handleSuggestionSelect(suggestion)}
-                    
-                  >
-                    <p className={Pointer ? "cursor-pointer" : "cursor-not-allowed"}>
-                      
-                    {suggestion}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
             <Link to={"/search-results/" + searchQuery}>
               <button
                 className="absolute right-0 top-0 h-full px-3"
-                disabled={searchQuery === "No RESULTS found" || searchQuery === ""}
+                disabled={searchQuery === ""}
               >
                 <svg
                   className="h-5 w-5 text-gray-500"

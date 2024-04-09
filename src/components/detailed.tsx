@@ -1,15 +1,18 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { StarIcon } from "@heroicons/react/20/solid";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../firebaseauth";
 import moviesimages from "../backend/moviesimg";
 import CommentSection from "./comment";
 import NotFound404 from "./404notfoun.jsx";
 import Loader from "./Loader.tsx";
+import { ArrowLeftIcon } from "@heroicons/react/24/outline";
+
 
 export default function Detailed() {
   const { id } = useParams();
+  const history = useNavigate();
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [userId, setUserId] = useState("");
   const [isInWatchlist, setIsInWatchlist] = useState(false);
@@ -17,11 +20,11 @@ export default function Detailed() {
   const [movieLoaded, setMovieLoaded] = useState(false);
   const [notFound, setNotFound] = useState(false);
   const [imageSrc, setImageSrc] = useState("");
+  const [trailerUrl, setTrailerUrl] = useState([]);
 
   const checkWatchlist = useCallback(async () => {
     try {
       if (!userId) {
-        
         return;
       }
       const response = await fetch(
@@ -40,6 +43,47 @@ export default function Detailed() {
       console.error("Error checking watchlist:", error.message);
     }
   }, [userId, id]);
+
+  //trailers
+  useEffect(() => {
+    const apiKey = "6dbdf27e3fb82e5b69b71a171310e6a3";
+    const fetchData = async () => {
+      try {
+        const response = await fetch(
+          `https://api.themoviedb.org/3/movie/${id}?api_key=${apiKey}`
+        );
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+        setSelectedMovie(data);
+        setMovieLoaded(true);
+
+        // Fetch trailer
+        const trailerResponse = await fetch(
+          `https://api.themoviedb.org/3/movie/${id}/videos?api_key=${apiKey}&language=en-US`
+        );
+        if (trailerResponse.ok) {
+          const trailerData = await trailerResponse.json();
+          if (trailerData.results.length > 0) {
+            const filteredTrailers = trailerData.results.filter(
+              (resultdata) =>
+                resultdata.type === "Trailer" &&
+                (resultdata.name.includes("Official Trailer") ||
+                  resultdata.name.includes("Trailer"))
+            );
+            console.log(filteredTrailers);
+            setTrailerUrl(filteredTrailers);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching movie details:", error);
+        setNotFound(true);
+      }
+    };
+
+    fetchData();
+  }, [id]);
 
   const addToWatchlist = useCallback(async () => {
     try {
@@ -96,10 +140,35 @@ export default function Detailed() {
     checkWatchlist();
   }, [checkWatchlist]);
 
+  const apiKey = "6dbdf27e3fb82e5b69b71a171310e6a3";
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(
+          `https://api.themoviedb.org/3/movie/${id}?api_key=${apiKey}`
+        );
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+        setSelectedMovie(data);
+        setMovieLoaded(true);
+      } catch (error) {
+        console.error("Error fetching movie details:", error);
+        setNotFound(true);
+      }
+    };
+
+    fetchData();
+  }, [id, apiKey]);
+
   useEffect(() => {
     const setImg = async () => {
       try {
-        const result = await moviesimages(id, "6dbdf27e3fb82e5b69b71a171310e6a3");
+        const result = await moviesimages(
+          id,
+          "6dbdf27e3fb82e5b69b71a171310e6a3"
+        );
         setImageSrc(result);
       } catch (error) {
         console.error("Error fetching image:", error.message);
@@ -109,38 +178,26 @@ export default function Detailed() {
     setImg();
   }, [id]);
 
-  useEffect(() => {
-    fetch(`https://cineback-0zol.onrender.com/searchmovies/${id}`)
-      .then((response) => {
-        if (response.ok) {
-          return response.json();
-        } else if (response.status === 404) {
-          setMovieLoaded(true);
-          setNotFound(true);
-          throw new Error("Movie not found");
-        } else {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-      })
-      .then((data) => {
-        setSelectedMovie(data.items[0]);
-        setMovieLoaded(true);
-      })
-      .catch((error) => {
-        console.error("Error fetching movie details:", error);
-      });
-  }, [id]);
+  const handleBackClick = () => {
+    history("/");
+  };
 
   if (!movieLoaded) {
     return <Loader />;
   }
 
   if (notFound) {
-    return <NotFound404></NotFound404>;
+    return <NotFound404 />;
   }
 
   return (
-    <div className="container mt-4 mx-auto pt-10 bg-slate-50 bg-opacity-10 rounded-3xl ">
+    <div className="container mt-4 mx-auto pt-10 bg-slate-50 bg-opacity-10 rounded-3xl relative">
+      <button
+        className="absolute top-4 left-4 bg-gray-800 text-white px-2 py-2 mb-4 rounded-full focus:outline-none"
+        onClick={handleBackClick}
+      >
+        <ArrowLeftIcon className="h-5 w-5" />
+      </button>
       <div className="flex p-4 flex-col lg:flex-row justify-center items-center gap-8">
         <div className="aspect-w-2 aspect-h-3 w-full lg:w-1/3 lg:max-w-md">
           <img
@@ -155,8 +212,18 @@ export default function Detailed() {
           </h1>
           <p className="text-gray-100 mb-2">
             <span className="text-gray-400 font-bold">Genres:</span>{" "}
-            {selectedMovie.genres}
+            <span className="flex flex-wrap gap-2">
+              {selectedMovie.genres.map((genre, index) => (
+                <span
+                  key={index}
+                  className="bg-gray-600 px-3 py-1 rounded-full text-sm text-white"
+                >
+                  {genre.name}
+                </span>
+              ))}
+            </span>
           </p>
+
           <div className="flex items-center mb-6">
             <p className="text-gray-400 mr-2">
               Rating: <br />
@@ -169,12 +236,7 @@ export default function Detailed() {
             </p>
             <p className="text-gray-400 mr-2">{selectedMovie.runtime} min</p>
           </div>
-          <div className="flex items-center mb-6">
-            <p className="text-gray-400 mr-2">
-              Release Year: <br />
-            </p>
-            <p className="text-gray-400 mr-2">{selectedMovie.release_year} </p>
-          </div>
+
           <div className="flex items-center mb-6">
             <p className="text-gray-400 mr-2">
               Release Date: <br />
@@ -183,58 +245,71 @@ export default function Detailed() {
               <b>{selectedMovie.release_date}</b>{" "}
             </p>
           </div>
-          <div className="flex items-center mb-6">
-            <p className="text-gray-400 mr-2">
-              Director :<br />
-            </p>
-            <p className="text-gray-400 mr-2">
-              <b>{selectedMovie.director}</b>{" "}
-            </p>
-          </div>
-          <div className="flex items-center mb-6">
-            <p className="text-gray-400 mr-2">
-              Cast-members:
-              <br />
-            </p>
-            <p className="text-gray-400 mr-2">
-              <b>{selectedMovie.cast}</b>{" "}
-            </p>
-          </div>
+
           <div className="flex items-center mb-6">
             <p className="text-gray-400 mr-3">
               Production Companies:
               <span className="font-bold ml-2">
-                {selectedMovie.production_companies}
+                {selectedMovie.production_companies
+                  .map((company) => company.name)
+                  .join(", ")}
               </span>{" "}
             </p>
           </div>
 
-          <h2 className="text-xl font-bold text-gray-400 mb-4 mt-3">Description</h2>
+          <h2 className="text-xl font-bold text-gray-400 mb-4 mt-3">
+            Description
+          </h2>
           <p className="text-slate-100 mb-8">{selectedMovie.overview}</p>
           <button
             type="button"
             onClick={addToWatchlist}
             className={`bg-indigo-600 text-white px-6 py-3 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
-              !userId
-                ? "opacity-50 cursor-not-allowed"
-                : isInWatchlist
+              !userId || isInWatchlist || isAddingToWatchlist
                 ? "opacity-50 cursor-not-allowed"
                 : ""
             }`}
             disabled={!userId || isInWatchlist || isAddingToWatchlist}
           >
             {isAddingToWatchlist ? (
-              <Loader /> 
+              <Loader />
+            ) : userId ? (
+              isInWatchlist ? (
+                "Added to Watchlist"
+              ) : (
+                "Add to Watchlist"
+              )
             ) : (
-              userId
-                ? isInWatchlist
-                  ? "Added to Watchlist"
-                  : "Add to Watchlist"
-                : "Login to Add to Watchlist"
+              "Login to Add to Watchlist"
             )}
           </button>
         </div>
       </div>
+      <div className="container mt-4 mx-auto pt-10 bg-slate-50 bg-opacity-10 rounded-3xl p-4">
+        <h2 className="text-xl font-bold text-gray-400 mb-4 mt-3">
+          Watch Trailer
+        </h2>
+        {trailerUrl && trailerUrl.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+            {trailerUrl.map((trailer, index) => (
+              <div
+                key={index}
+                className="aspect-w-16 aspect-h-9 overflow-hidden"
+              >
+                <iframe
+                  src={`https://www.youtube.com/embed/${trailer.key}`}
+                  title={`Trailer ${index + 1}`}
+                  allowFullScreen
+                  style={{ padding: "10px" }} // Add padding to increase size
+                ></iframe>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-gray-400">No trailers available</p>
+        )}
+      </div>
+
       <CommentSection imdb_id={id}></CommentSection>
     </div>
   );
