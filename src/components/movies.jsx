@@ -13,7 +13,7 @@ function Movies() {
   const [errors, setErrors] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const itemsPerPage = 20; // Adjust as needed
+ // Adjust as needed
   const apiKey = '6dbdf27e3fb82e5b69b71a171310e6a3'; // Replace with your actual API key const url = 'https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc&with_genres=12';
 
   const apiUrl = `https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&language=en-US`;
@@ -51,7 +51,7 @@ function Movies() {
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, user]);
+  }, [currentPage, user,apiUrl]);
   
 
   useEffect(() => {
