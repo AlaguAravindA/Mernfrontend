@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import imgsrc from "./images/c.png";
-import { Link } from "react-router-dom";
+import key from 'keymaster';
+import { Link } from "react-router-dom";  
 import { useNavigate } from "react-router-dom";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "../firebaseauth.js";
@@ -15,12 +16,12 @@ export default function Navbar() {
   const [userNameemail, setUserNameemail] = useState("");
   const [userId, setUserId] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  // const [Pointer , setPointer] = useState(true);
   const historys = useNavigate();
   const dropdownRef = useRef(null);
+  const searchBoxRef = useRef(null);  
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (event) => {
       const isButtonClick = (event.target as HTMLElement).closest(
         ".text-slate-400"
       );
@@ -58,7 +59,7 @@ export default function Navbar() {
     }
   };
 
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSearchChange = (event) => {
     setSearchQuery(event.target.value);
   };
 
@@ -66,7 +67,7 @@ export default function Navbar() {
     historys(`/pref/${userId}`);
   };
 
-  const extractUsername = (email: string) => {
+  const extractUsername = (email) => {
     const match = email.match(/^([a-zA-Z0-9._%+-]+)@/);
     return match && match[1] ? match[1] : "";
   };
@@ -77,6 +78,53 @@ export default function Navbar() {
   } else if (userName !== null && userNameemail === "") {
     usernameemail = userName;
   }
+
+
+  const handleClick = ()=>{
+    console.log("Search query:", searchQuery);
+    historys("/search-results/" + searchQuery);
+  };
+
+  const handleKeyDown = (event) => {
+    // Check if the pressed key is the Enter key (key code 13)
+   
+    if (event.keyCode === 13) {
+      // Call your desired function here
+     handleClick();
+    }
+  };
+  
+  
+  useEffect(() => {
+    key.filter = function(event) {
+      // Allow keymaster to work only when input element is not focused
+      const tagName = (event.target || event.srcElement).tagName;
+      const editable =
+        tagName === "INPUT" ||
+        tagName === "SELECT" ||
+        tagName === "TEXTAREA" ||
+        (event.target || event.srcElement).isContentEditable;
+      return !editable;
+    };
+  
+    key("alt+enter", function() {
+      const searchBox = document.getElementById("searchbox");
+      if (searchBox) {
+        searchBox.focus();
+      }
+      return false; // Prevent the default action
+    });
+  
+    return () => {
+      key.unbind("alt+enter");
+      key.unbind("enter");
+    };
+  }, []);
+  
+  
+
+  
+  
 
   return (
     <div className="bg-opacity-10 bg-slate-200 backdrop-blur-md z-auto">
@@ -120,31 +168,33 @@ export default function Navbar() {
         <div className="lg:flex lg:flex-1 lg:justify-end items-center text-sm font-semibold leading-6 text-slate-400 hover:text-sky-400">
           <div className="relative mx-3">
             <input
+              ref={searchBoxRef}
               type="text"
+              id="searchbox"
               className="py-1 px-2 border w-64 border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
               placeholder="Search..."
               value={searchQuery}
               onChange={handleSearchChange}
+              onKeyDown={handleKeyDown}
             />
-            <Link to={"/search-results/" + searchQuery}>
-              <button
-                className="absolute right-0 top-0 h-full px-3"
-                disabled={searchQuery === ""}
+            <button
+              className="absolute right-0 top-0 h-full px-3"
+              disabled={searchQuery === ""}
+              onClick={handleClick}
+            >
+              <svg
+                className="h-5 w-5 text-gray-500"
+                fill="none"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
               >
-                <svg
-                  className="h-5 w-5 text-gray-500"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M21 21l-5.2-5.2" />
-                  <circle cx="10" cy="10" r="8" />
-                </svg>
-              </button>
-            </Link>
+                <path d="M21 21l-5.2-5.2" />
+                <circle cx="10" cy="10" r="8" />
+              </svg>
+            </button>
           </div>
         </div>
         {isLoggedIn ? (
