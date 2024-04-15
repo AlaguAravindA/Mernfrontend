@@ -81,8 +81,10 @@ export default function Navbar() {
 
 
   const handleClick = ()=>{
-    console.log("Search query:", searchQuery);
-    historys("/search-results/" + searchQuery);
+   if(searchQuery.trim()!== ''){
+
+     historys("/search-results/" + searchQuery);
+    }
   };
 
   const handleKeyDown = (event) => {
@@ -117,7 +119,7 @@ export default function Navbar() {
   
     return () => {
       key.unbind("alt+enter");
-      key.unbind("enter");
+    
     };
   }, []);
   
@@ -171,7 +173,7 @@ export default function Navbar() {
               ref={searchBoxRef}
               type="text"
               id="searchbox"
-              className="py-1 px-2 border w-64 border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
+              className="py-2 px-4 border rounded-md focus:outline-none focus:border-transparent focus:ring-4 focus:ring-violet-900 transition duration-300"
               placeholder="Alt+Enter to Search."
               value={searchQuery}
               onChange={handleSearchChange}
