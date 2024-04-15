@@ -172,7 +172,7 @@ export default function Navbar() {
               type="text"
               id="searchbox"
               className="py-1 px-2 border w-64 border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
-              placeholder="Search..."
+              placeholder="Alt+Enter to Search."
               value={searchQuery}
               onChange={handleSearchChange}
               onKeyDown={handleKeyDown}
