@@ -5,6 +5,7 @@ import BackToTopButton from './backtotop.jsx';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../firebaseauth.js';
 import Loader from './Loader.tsx';
+import { useCookies } from 'react-cookie'; // Import useCookies hook from react-cookie
 
 function Movies() {
   const [user, setUser] = useState('');
@@ -13,30 +14,31 @@ function Movies() {
   const [errors, setErrors] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
- // Adjust as needed
-  const apiKey = '6dbdf27e3fb82e5b69b71a171310e6a3'; // Replace with your actual API key const url = 'https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc&with_genres=12';
+  const [cookies, setCookie] = useCookies(['userPreferences']); // Define cookies and setCookie function
 
+  const apiKey = '6dbdf27e3fb82e5b69b71a171310e6a3';
   const apiUrl = `https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&language=en-US`;
+
   const fetchData = useCallback(async () => {
     setIsLoading(true);
     try {
-      let url = apiUrl; // Initialize URL to default API URL
-  
-      // Fetch user preferences only when the user is logged in
-      if (user) {
+      let url = apiUrl;
+      // console.log(cookies[user]+"hello")
+
+      if (cookies[user]) { // Check if user's preferences are stored in cookies
+        url += `&with_genres=${cookies[user]}`; // Use preferences from cookies
+      } else if (user) {
         const response = await fetch(`https://cineback-0zol.onrender.com/pref/${user}`);
-     
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
         const data = await response.json();
-        const userPreferences = data.preferences || []; // Ensure preferences is an array
-        const genreIds = userPreferences[0]; // Extract genre IDs from preferences
-        console.log(genreIds);
-        
-        url += `&with_genres=${genreIds}`; // Append genre IDs to the URL
+        const userPreferences = data.preferences || [];
+        const genreIds = userPreferences[0] || '';
+        setCookie(user, genreIds, { path: '/', expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) }); // Set preferences to cookies with expiration
+        url += `&with_genres=${genreIds}`;
       }
-  
+
       const response = await fetch(`${url}&page=${currentPage}`);
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
@@ -50,9 +52,7 @@ function Movies() {
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, user, apiUrl]);
-  
-  
+  }, [currentPage, user, apiUrl, cookies, setCookie]);
 
   useEffect(() => {
     fetchData();

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import './styles/UserPreferences.css';
+import Cookies from 'js-cookie'; // Import Cookies library
 
 const genreData = [
   { id: 28, name: 'Action' },
@@ -36,20 +37,32 @@ const UserPreferences = () => {
 
   const handleSelection = async () => {
     setStoringPreference(true); // Start loader
-
-    // Perform API call to store the selected preference
-    await fetch(`https://cineback-0zol.onrender.com/prefrences/setpref/${uid}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ pref: selectedGenre }),
-    });
-
-    setStoringPreference(false); // Stop loader
-    // Navigate to home after storing the preference
-    navigate('/');
+  
+    try {                             
+      const response = await fetch(`https://cineback-0zol.onrender.com/prefrences/setpref/${uid}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ pref: selectedGenre }),
+      });
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+  
+      
+      Cookies.set(`${uid}`, selectedGenre, { expires: 7 }); // Set an expiration of 7 days
+  
+      setStoringPreference(false); // Stop loader
+      // Navigate to home after storing the preference
+      navigate('/');
+    } catch (error) {
+      console.error('Error storing preference:', error);
+      setStoringPreference(false); // Stop loader in case of error
+    }
   };
+  
 
   useEffect(() => {
     // Fetch preference existence status

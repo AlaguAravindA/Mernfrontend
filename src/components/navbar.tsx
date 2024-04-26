@@ -73,8 +73,9 @@ export default function Navbar() {
   };
 
   let usernameemail = extractUsername(userNameemail);
+  console.log(usernameemail);
   if (userName === "" && userNameemail !== null) {
-    usernameemail = userNameemail;
+    
   } else if (userName !== null && userNameemail === "") {
     usernameemail = userName;
   }

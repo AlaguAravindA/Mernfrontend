@@ -8,6 +8,7 @@ import CommentSection from "./comment";
 import NotFound404 from "./404notfoun.jsx";
 import Loader from "./Loader.tsx";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
+import ErrorModal from "./auth/errorModal.tsx";
 
 
 export default function Detailed() {
@@ -21,6 +22,8 @@ export default function Detailed() {
   const [notFound, setNotFound] = useState(false);
   const [imageSrc, setImageSrc] = useState("");
   const [trailerUrl, setTrailerUrl] = useState([]);
+  // const [error, setError] = useState(null);
+  const [errorModal, setErrorModal] = useState(false);
 
   const checkWatchlist = useCallback(async () => {
     try {
@@ -41,6 +44,7 @@ export default function Detailed() {
       setIsInWatchlist(data.isInWatchlist);
     } catch (error) {
       console.error("Error checking watchlist:", error.message);
+      
     }
   }, [userId, id]);
 
@@ -79,6 +83,8 @@ export default function Detailed() {
       } catch (error) {
         console.error("Error fetching movie details:", error);
         setNotFound(true);
+        
+        
       }
     };
 
@@ -93,6 +99,7 @@ export default function Detailed() {
       }
 
       setIsAddingToWatchlist(true);
+   
 
       const response = await fetch(
         `https://cineback-0zol.onrender.com/watchlist/addtowatchlist/${userId}`,
@@ -189,9 +196,13 @@ export default function Detailed() {
   if (notFound) {
     return <NotFound404 />;
   }
+  const handleCloseModal = () => {
+    setErrorModal(false);
+  };
 
   return (
     <div className="container mt-4 mx-auto pt-10 bg-slate-50 bg-opacity-10 rounded-3xl relative">
+      {errorModal && <ErrorModal errorMeassge={error} onclose={handleCloseModal}/> }
       <button
         className="absolute top-4 left-4 bg-gray-800 text-white px-2 py-2 mb-4 rounded-full focus:outline-none"
         onClick={handleBackClick}
@@ -262,6 +273,7 @@ export default function Detailed() {
           </h2>
           <p className="text-slate-100 mb-8">{selectedMovie.overview}</p>
           <button
+          
             type="button"
             onClick={addToWatchlist}
             className={`bg-indigo-600 text-white px-6 py-3 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
@@ -272,7 +284,8 @@ export default function Detailed() {
             disabled={!userId || isInWatchlist || isAddingToWatchlist}
           >
             {isAddingToWatchlist ? (
-              <Loader />
+             "Adding to Watchlist"
+
             ) : userId ? (
               isInWatchlist ? (
                 "Added to Watchlist"
