@@ -76,7 +76,7 @@ export default function Detailed() {
                 (resultdata.name.includes("Official Trailer") ||
                   resultdata.name.includes("Trailer"))
             );
-            console.log(filteredTrailers);
+           
             setTrailerUrl(filteredTrailers);
           }
         }

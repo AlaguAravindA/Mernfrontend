@@ -7,6 +7,7 @@ import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "../firebaseauth.js";
 import logout from "./images/logout.svg";
 import pref from "./images/pref.svg";
+const Cookies = require('js-cookie');
 
 export default function Navbar() {
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -53,6 +54,10 @@ export default function Navbar() {
   const handleLogout = async () => {
     try {
       await signOut(auth);
+      if (userId) {
+        Cookies.remove(userId);
+      }
+
       historys("/home");
     } catch (error) {
       console.error("Error signing out:", error.message);
@@ -73,7 +78,7 @@ export default function Navbar() {
   };
 
   let usernameemail = extractUsername(userNameemail);
-  console.log(usernameemail);
+  
   if (userName === "" && userNameemail !== null) {
     
   } else if (userName !== null && userNameemail === "") {

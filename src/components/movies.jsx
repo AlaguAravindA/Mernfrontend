@@ -6,6 +6,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../firebaseauth.js';
 import Loader from './Loader.tsx';
 import { useCookies } from 'react-cookie'; // Import useCookies hook from react-cookie
+import Cookies from 'js-cookie'; // Import Cookies library
 
 function Movies() {
   const [user, setUser] = useState('');
@@ -14,7 +15,7 @@ function Movies() {
   const [errors, setErrors] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [cookies, setCookie] = useCookies(['userPreferences']); // Define cookies and setCookie function
+  const [cookies, setCookie] = useCookies([user]); // Define cookies and setCookie function
 
   const apiKey = '6dbdf27e3fb82e5b69b71a171310e6a3';
   const apiUrl = `https://api.themoviedb.org/3/discover/movie?api_key=${apiKey}&language=en-US`;
@@ -26,8 +27,11 @@ function Movies() {
       // console.log(cookies[user]+"hello")
 
       if (cookies[user]) { // Check if user's preferences are stored in cookies
-        url += `&with_genres=${cookies[user]}`; // Use preferences from cookies
+           
+        
+        url += `&with_genres=${Cookies.get(`${user}`)}`; // Use preferences from cookies
       } else if (user) {
+        console.log("hello"); 
         const response = await fetch(`https://cineback-0zol.onrender.com/pref/${user}`);
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
@@ -55,8 +59,11 @@ function Movies() {
   }, [currentPage, user, apiUrl, cookies, setCookie]);
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    // Update the URL and fetch data when user preferences change
+
+      fetchData(); // Fetch data with updated preferences
+    
+  }, [ fetchData]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
