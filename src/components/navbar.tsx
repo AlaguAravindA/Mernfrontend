@@ -17,9 +17,11 @@ export default function Navbar() {
   const [userNameemail, setUserNameemail] = useState("");
   const [userId, setUserId] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [filteredSuggestions, setFilteredSuggestions] = useState([]);
+  const [isLoader, setIsLoader] = useState(false);
   const historys = useNavigate();
   const dropdownRef = useRef(null);
-  const searchBoxRef = useRef(null);  
+  const searchBoxRef = useRef(null);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -29,9 +31,11 @@ export default function Navbar() {
       const isDropdownClick =
         dropdownRef.current &&
         dropdownRef.current.contains(event.target as Node);
+      const isSearchBoxClick = searchBoxRef.current && searchBoxRef.current.contains(event.target as Node);
 
-      if (!isButtonClick && !isDropdownClick) {
+      if (!isButtonClick && !isDropdownClick && !isSearchBoxClick) {
         setShowDropdown(false);
+        setFilteredSuggestions([]);
       }
     };
 
@@ -78,34 +82,36 @@ export default function Navbar() {
   };
 
   let usernameemail = extractUsername(userNameemail);
-  
+
   if (userName === "" && userNameemail !== null) {
-    
+    usernameemail = extractUsername(userNameemail);
   } else if (userName !== null && userNameemail === "") {
     usernameemail = userName;
   }
 
-
-  const handleClick = ()=>{
-   if(searchQuery.trim()!== ''){
-
-     historys("/search-results/" + searchQuery);
+  const handleClick = () => {
+    setFilteredSuggestions([]);
+    if (searchQuery.trim() !== '') {
+      searchBoxRef.current.blur(); // Remove focus from search input
+      historys("/search-results/" + searchQuery);
     }
+  };
+
+  const handleSuggestionClick = (suggestion) => {
+    setFilteredSuggestions([]);
+    setSearchQuery(suggestion);
+    searchBoxRef.current.blur(); // Remove focus from search input
+    // historys("/search-results/" + suggestion);
   };
 
   const handleKeyDown = (event) => {
-    // Check if the pressed key is the Enter key (key code 13)
-   
     if (event.keyCode === 13) {
-      // Call your desired function here
-     handleClick();
+      handleClick();
     }
   };
-  
-  
+
   useEffect(() => {
-    key.filter = function(event) {
-      // Allow keymaster to work only when input element is not focused
+    key.filter = function (event) {
       const tagName = (event.target || event.srcElement).tagName;
       const editable =
         tagName === "INPUT" ||
@@ -114,25 +120,52 @@ export default function Navbar() {
         (event.target || event.srcElement).isContentEditable;
       return !editable;
     };
-  
-    key("alt+enter", function() {
+
+    key("alt+enter", function () {
       const searchBox = document.getElementById("searchbox");
       if (searchBox) {
         searchBox.focus();
+      } else {
+        setShowDropdown(false);
       }
       return false; // Prevent the default action
     });
-  
+
     return () => {
       key.unbind("alt+enter");
-    
     };
   }, []);
-  
-  
 
-  
-  
+  const fetchData = async () => {
+    if (searchQuery.trim() === "") {
+      setFilteredSuggestions([]);
+      return;
+    }
+
+    setIsLoader(true);
+    try {
+      const url = `https://api.themoviedb.org/3/search/movie?query=${searchQuery}&include_adult=false&language=en-US&page=1`;
+      const options = {
+        method: 'GET',
+        headers: {
+          accept: 'application/json',
+          Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI2ZGJkZjI3ZTNmYjgyZTViNjliNzFhMTcxMzEwZTZhMyIsInN1YiI6IjY1ODkxNzA0MDcyMTY2NjdlNGE1YmFlYSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.cgxsdMCxOIZQVpHLyfNR8uPNGLZtiAy0ZdwNJnJ7aFI'
+        }
+      };
+
+      const response = await fetch(url, options);
+      const data = await response.json();
+      setFilteredSuggestions(data.results.map(movie => movie.title));
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    } finally {
+      setIsLoader(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [searchQuery]);
 
   return (
     <div className="bg-opacity-10 bg-slate-200 backdrop-blur-md z-auto">
@@ -180,7 +213,7 @@ export default function Navbar() {
               type="text"
               id="searchbox"
               className="py-2 px-4 border rounded-md focus:outline-none focus:border-transparent focus:ring-4 focus:ring-violet-900 transition duration-300"
-              placeholder="Alt+Enter to Search."
+              placeholder={isMobileMenuOpen ? 'Search..' : "Alt+Enter to Search"}
               value={searchQuery}
               onChange={handleSearchChange}
               onKeyDown={handleKeyDown}
@@ -203,6 +236,19 @@ export default function Navbar() {
                 <circle cx="10" cy="10" r="8" />
               </svg>
             </button>
+            {filteredSuggestions.length > 0 && (
+              <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                {filteredSuggestions.map((suggestion, index) => (
+                  <li
+                    key={index}
+                    className="px-4 py-2 text-gray-700 cursor-pointer hover:bg-gray-200"
+                    onClick={() => handleSuggestionClick(suggestion)}
+                  >
+                    {suggestion}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         </div>
         {isLoggedIn ? (

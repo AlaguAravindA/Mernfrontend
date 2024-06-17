@@ -22,6 +22,7 @@ import EditPlaylist from './components/updatingplaylist.jsx';
 import NotFound404 from './components/404notfoun.jsx';
 
 
+
 const App = () => {
   return (
     <>
@@ -45,7 +46,9 @@ const App = () => {
         <Route path='*' element={<NotFound404 />}></Route>
       </Routes>
       {/* Other components like Particle, Footer, etc. */}
+      
       <Particle></Particle>
+      
       <Footer></Footer>
       </>
    
