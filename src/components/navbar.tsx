@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import imgsrc from "./images/c.png";
 import key from 'keymaster';
 import { Link } from "react-router-dom";  
@@ -18,7 +18,7 @@ export default function Navbar() {
   const [userId, setUserId] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredSuggestions, setFilteredSuggestions] = useState([]);
-  const [isLoader, setIsLoader] = useState(false);
+  const [isLoader, setIsLoader] = useState(false); // State variable for loading indicator
   const historys = useNavigate();
   const dropdownRef = useRef(null);
   const searchBoxRef = useRef(null);
@@ -57,6 +57,7 @@ export default function Navbar() {
 
   const handleLogout = async () => {
     try {
+      setIsLoader(true); // Set loading state when logging out
       await signOut(auth);
       if (userId) {
         Cookies.remove(userId);
@@ -65,6 +66,8 @@ export default function Navbar() {
       historys("/home");
     } catch (error) {
       console.error("Error signing out:", error.message);
+    } finally {
+      setIsLoader(false); // Reset loading state after operation
     }
   };
 
@@ -93,6 +96,7 @@ export default function Navbar() {
     setFilteredSuggestions([]);
     if (searchQuery.trim() !== '') {
       searchBoxRef.current.blur(); // Remove focus from search input
+      setIsLoader(true); // Set loading state before search
       historys("/search-results/" + searchQuery);
     }
   };
@@ -101,7 +105,8 @@ export default function Navbar() {
     setFilteredSuggestions([]);
     setSearchQuery(suggestion);
     searchBoxRef.current.blur(); // Remove focus from search input
-    // historys("/search-results/" + suggestion);
+    setIsLoader(true); // Set loading state before search
+    historys("/search-results/" + suggestion);
   };
 
   const handleKeyDown = (event) => {
@@ -135,13 +140,17 @@ export default function Navbar() {
       key.unbind("alt+enter");
     };
   }, []);
+  
+  
 
-  const fetchData = async () => {
+  
+  // Define fetchData as a useCallback to prevent unnecessary re-renders
+  const fetchData = useCallback(async () => {
     if (searchQuery.trim() === "") {
       setFilteredSuggestions([]);
       return;
     }
-
+  
     setIsLoader(true);
     try {
       const url = `https://api.themoviedb.org/3/search/movie?query=${searchQuery}&include_adult=false&language=en-US&page=1`;
@@ -152,7 +161,7 @@ export default function Navbar() {
           Authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI2ZGJkZjI3ZTNmYjgyZTViNjliNzFhMTcxMzEwZTZhMyIsInN1YiI6IjY1ODkxNzA0MDcyMTY2NjdlNGE1YmFlYSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.cgxsdMCxOIZQVpHLyfNR8uPNGLZtiAy0ZdwNJnJ7aFI'
         }
       };
-
+  
       const response = await fetch(url, options);
       const data = await response.json();
       setFilteredSuggestions(data.results.map(movie => movie.title));
@@ -161,12 +170,11 @@ export default function Navbar() {
     } finally {
       setIsLoader(false);
     }
-  };
-
+  }, [searchQuery, setIsLoader, setFilteredSuggestions]);
   useEffect(() => {
     fetchData();
-  }, [searchQuery]);
-
+  }, [searchQuery,fetchData]);
+  
   return (
     <div className="bg-opacity-10 bg-slate-200 backdrop-blur-md z-auto">
       <nav className="flex items-center justify-between p-4 lg:px-8" aria-label="Global">
@@ -236,6 +244,11 @@ export default function Navbar() {
                 <circle cx="10" cy="10" r="8" />
               </svg>
             </button>
+            {isLoader && (
+              <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                <div className="spinner"></div>
+              </div>
+            )}
             {filteredSuggestions.length > 0 && (
               <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
                 {filteredSuggestions.map((suggestion, index) => (
@@ -310,3 +323,4 @@ export default function Navbar() {
     </div>
   );
 }
+
