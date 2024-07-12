@@ -37,7 +37,7 @@ function Playlist() {
   }
 
   const fetchPlaylistData = useCallback(async () => {
-    setIsLoading(true);
+   
     try {
       const response = await fetch(`https://cineback-0zol.onrender.com/playlist/all/${userId}`);
       if (response.ok) {
@@ -122,6 +122,7 @@ function Playlist() {
             movies: [],
           }),
         });
+        
 
         if (response.ok) {
           await fetchUserPlaylists();
